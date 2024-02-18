@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <BluetoothSerial.h>
+#include <cmd.h>
 
 BluetoothSerial SerialBT;
 
@@ -29,6 +30,9 @@ void loop() {
   }
 
   if(cmdBuffer.length()){
+
+    //Serial.println(cmdBuffer); //测试用，查看是否接收到信息。
+
     String commandType; //存储的命令类型
 
     //遍历cmdBuffer，分割命令类型和命令参数；
@@ -41,19 +45,21 @@ void loop() {
       }
     }
 
-    Serial.print("Command: ");
-    Serial.print(commandType);
-    Serial.print(" Value: ");
-    Serial.print(cmdval, DEC);
-    Serial.print('\n');
+    if (command(commandType, cmdval)==-1){
+        Serial.print("UnknownCommand ");
+        Serial.print(commandType);
+        Serial.print(' ');
+        Serial.print(cmdval, DEC);
+        Serial.print('\n');
+    }
 
 
 
     // LED响应
     // Serial.print(cmdBuffer);
-    digitalWrite(LED_BUILTIN,HIGH);
-    delay(10);
-    digitalWrite(LED_BUILTIN,LOW);
+    // digitalWrite(LED_BUILTIN,HIGH);
+    // delay(10);
+    // digitalWrite(LED_BUILTIN,LOW);
   }
 }
 
