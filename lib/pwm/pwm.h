@@ -9,5 +9,4 @@ int pwmFreq = 1000;
 
 void pwmInit(){
     pinMode(MOTOR_PWM,OUTPUT);
-
 }
