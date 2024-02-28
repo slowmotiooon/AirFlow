@@ -44,34 +44,35 @@ int getPower(){
     }
 }
 
-int command(String cmd){
-    if (cmd.equals("setLED")){
-        if(setLED(cmdval)==-1) return -1;
+int command(String cmdType, int cmdVal){
+    if (cmdType.equals("setLED")){
+        if(setLED(cmdVal)==-1) return -1;
     }
-    else if (cmd.equals("power on")){
+    else if (cmdType.equals("power on")){
     }
-    else if (cmd.equals("power off")){
+    else if (cmdType.equals("power off")){
     }
-    else if (cmd.equals("launch on")){
+    else if (cmdType.equals("launch on")){
     }
-    else if (cmd.equals("launch off")){
+    else if (cmdType.equals("launch off")){
     }
-    else if (cmd.equals("purge on")){
+    else if (cmdType.equals("purge on")){
     }
-    else if (cmd.equals("purge off")){
+    else if (cmdType.equals("purge off")){
     }
-    else if (cmd.equals("getinfo")){
+    else if (cmdType.equals("getinfo")){
     }
-    else if (cmd.startsWith("setRate ")){
+    else if (cmdType.startsWith("setRate ")){
     }
-    else if (cmd.startsWith("setVolume ")){
+    else if (cmdType.startsWith("setVolume ")){
     }
-    else if (cmd.startsWith("setTime ")){
+    else if (cmdType.startsWith("setTime ")){
     }
-    else if (cmd.startsWith("setFactor ")){
+    else if (cmdType.startsWith("setFactor ")){
     }
-    else if (cmd.startsWith("setRange ")){
+    else if (cmdType.startsWith("setRange ")){
     }
+    return 0;
 }
 
 /*

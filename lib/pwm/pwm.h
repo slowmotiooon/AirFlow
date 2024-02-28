@@ -2,11 +2,7 @@
 #include <Arduino.h>
 #include <IO.h>
 
-const int MOTOR_PWM = 0;
+const int pwmResolution = 10; //设置PWM分辨率
+const int pwmFreq = 1000;
 
-int pwmResolution = 10; //设置PWM分辨率
-int pwmFreq = 1000;
-
-void pwmInit(){
-    pinMode(MOTOR_PWM,OUTPUT);
-}
+void pwmInit();
