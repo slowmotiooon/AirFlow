@@ -59,7 +59,7 @@ void setup()
   SerialBT.setPin("1234");       // 设置配对码
   timer = TimerStart(timer);
 
-  xTaskCreatePinnedToCore(pwmTask,"pwmTask",4096,nullptr,3,&th_p[0],0);
+  xTaskCreatePinnedToCore(pwmTask,"pwmTask",4096,nullptr,3,&th_p[0],1);
 
 }
 
@@ -110,7 +110,7 @@ void loop()
       Serial.print('\n');
     }
 
-    ledcWrite(MOTOR_LEDC_CHANNEL,interruptCounter);
+
 
     // LED响应
     // Serial.print(cmdBuffer);
@@ -118,4 +118,5 @@ void loop()
     // delay(10);
     // digitalWrite(LED_BUILTIN,LOW);
   }
+
 }
