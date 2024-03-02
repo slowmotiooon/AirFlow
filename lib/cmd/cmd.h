@@ -7,4 +7,6 @@ extern BluetoothSerial SerialBT;
 
 void outputViaBT(String target);
 
-int command(String cmdType,int cmdval);
+int executeCommand(const String& commandBuffer);
+
+String getBTCommand();
