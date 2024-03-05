@@ -9,6 +9,7 @@ Device::Device() {
     settledFlowRate = 0;
     flowRate = 0;
     conversionFactor = 0;
+    updateFrequency = 10000000;
 
 }
 
@@ -57,8 +58,18 @@ int Device::setPower(int val) {
 
 }
 
-void Device::setLaunch(int val) {
-
+int Device::setLaunch(int val) {
+    if(val==1){
+        digitalWrite(LAUNCH,HIGH);
+        updateFrequency = 1000000;
+        return 1;
+    }
+    else if(val==0){
+        digitalWrite(LAUNCH,LOW);
+        updateFrequency = 10000000;
+        return 1;
+    }
+    else return 0;
 }
 
 void Device::setPurge(int val) {

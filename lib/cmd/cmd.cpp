@@ -80,8 +80,13 @@ int executeCommand(const String& commandBuffer){
         else return 0;
     }
     else if (commandType.equals("launch")){
-        defaultDevice.setLaunch(commandValue);
-        return 1;
+        if(defaultDevice.setLaunch(commandValue)){
+            outputViaBT("Launch is set to ");
+            outputViaBT(defaultDevice.getLaunch());
+            outputViaBT("\n");
+            return 1;
+        }
+        else return 0;
     }
     else if (commandType.equals("purge")){
         defaultDevice.setPurge(commandValue);
@@ -112,18 +117,3 @@ int executeCommand(const String& commandBuffer){
     else return 0;
 }
 
-/*
- * command类接收蓝牙输入命令转换为IO与timer命令
- *
- * power on/off
- * launch on/off
- * purge on/off
- * getinfo 包括瞬时流量，剩余时间，已经输入的容量，当前的阀控态，电源态，当前设置的时间、流速、体积、转换系数、满量程流速
- * （待机态每秒调用一次，启动时每100ms调用一次）
- *
- * setRate double 设置流速
- * setVolume double 设置容积
- * setTime double 设置时间
- * setFactor double 设置气体转换系数
- * setRange int 设置满量程流速
- */

@@ -21,6 +21,7 @@ void pwmTask(void *pVoid) {
 //回调函数，在计时器的触发时刻执行
 void IRAM_ATTR timerEvent() {
     //outputViaBT(defaultDevice.getDeviceInfo()); //将获得的设备信息上传到蓝牙终端
+    outputViaBT("1\n");
 }
 
 hw_timer_t *TimerStart(hw_timer_t *hwTimer) {
@@ -39,7 +40,7 @@ hw_timer_t *TimerStart(hw_timer_t *hwTimer) {
     // 设置回调函数触发时间
     // 第一个参数是（绑定好回调函数的）计时器
     // 第二个参数是设置触发间隔， 1000000，指一秒钟触发一次
-    timerAlarmWrite(hwTimer, Device::getUpdateFrequency(), true);
+    timerAlarmWrite(hwTimer, defaultDevice.updateFrequency, true);
 
     // 启动
     timerAlarmEnable(hwTimer);
@@ -56,9 +57,9 @@ void setup() {
     pwmInit();
     SerialBT.begin("esppppppp32"); // 启动蓝牙终端
     SerialBT.setPin("1234");       // 设置配对码
-    timer = TimerStart(timer);
+    //timer = TimerStart(timer);
 
-    //xTaskCreatePinnedToCore(pwmTask, "pwmTask", 4096, nullptr, 3, &th_p[0], 0);
+    xTaskCreatePinnedToCore(pwmTask, "pwmTask", 4096, nullptr, 3, &th_p[0], 0);
 }
 
 void loop() {
