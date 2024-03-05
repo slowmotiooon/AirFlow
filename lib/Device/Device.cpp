@@ -42,7 +42,18 @@ int Device::getFlowRate() {
     return 0;
 }
 
-void Device::setPower(int val) {
+//set类函数的返回值：
+//0表示设置失败，1代表设置成功
+int Device::setPower(int val) {
+    if(val==1){
+        digitalWrite(POWER,HIGH);
+        return 1;
+    }
+    else if(val==0){
+        digitalWrite(POWER,LOW);
+        return 1;
+    }
+    else return 0;
 
 }
 
@@ -67,6 +78,16 @@ int Device::getUpdateFrequency() {
     else return 100000;
 }
 
-void Device::uploadDeviceInfo() {
+String Device::getDeviceInfo() {
     info["power"] = getPower();
+    info["launch"] = getLaunch();
+    info["purge"] = getPurge();
+    info["maxFlowRate"] = maxFlowRate;
+    info["settledFlowRate"] = settledFlowRate;
+    info["flowRate"] = flowRate;
+    info["conversionFactor"] = conversionFactor;
+
+    String jsonBuffer;
+    serializeJson(info,jsonBuffer);
+    return jsonBuffer;
 }

@@ -4,11 +4,11 @@
 void outputViaBT(String target){
     //遍历字符串，用于输出
     for(int i = 0;i<target.length();i++){
-        Serial.print(target[i]);    //在串口中输出
+        //Serial.print(target[i]);    //在串口中输出
         SerialBT.write(target[i]);  //在蓝牙中输出
     }
-    Serial.print("\n");
-    SerialBT.write('\n');
+    //Serial.print("\n");
+    //SerialBT.write('\n');
 }
 
 //设置LED开关
@@ -71,8 +71,13 @@ int executeCommand(const String& commandBuffer){
         return 1;
     }
     else if (commandType.equals("power")){
-        defaultDevice.setPower(commandValue);
-        return 1;
+        if(defaultDevice.setPower(commandValue)){
+            outputViaBT("Power is set to ");
+            outputViaBT(defaultDevice.getPower());
+            outputViaBT("\n");
+            return 1;
+        }
+        else return 0;
     }
     else if (commandType.equals("launch")){
         defaultDevice.setLaunch(commandValue);
@@ -98,6 +103,10 @@ int executeCommand(const String& commandBuffer){
         return 1;
     }
     else if (commandType.startsWith("setRange ")){
+        return 1;
+    }
+    else if(commandType.equals("getPower")){
+        outputViaBT(defaultDevice.getPower());
         return 1;
     }
     else return 0;

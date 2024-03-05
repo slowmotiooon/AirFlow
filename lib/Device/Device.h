@@ -16,19 +16,19 @@ class Device {
     int conversionFactor;   //测量的数据与实际数据之间的比例系数，与通过的气体种类有关，储存的值是因子的1000倍
     JsonDocument info;
 public:
-    Device();
-    static String getPower();
-    static String getLaunch();
-    static String getPurge();
-    static int getFlowRate();
-    static int getUpdateFrequency();
-    void setPower(int val);
-    void setLaunch(int val);
-    void setPurge(int val);
-    void SetFactor(int val);
-    void setFlowRate(int val);
+    Device();   //构造函数，初始化所有变量
+    String getPower();   //获得设备电源信息
+    String getLaunch();  //获得设备运行状态信息
+    String getPurge();   //获得设备清洗状态信息
+    int getFlowRate();   //获得设备流速
+    int getUpdateFrequency();    //从运行状态获得设备的信息更新频率，运行：1秒1次，非运行：10秒1次
+    int setPower(int val); //设定设备的电源信息
+    void setLaunch(int val);    //设定设备的运行状态
+    void setPurge(int val); //设定设备的清洗状态
+    void SetFactor(int val);    //设定气体转换系数
+    void setFlowRate(int val);  //设置流速
 
-    void updateDeviceInfo();
-    void uploadDeviceInfo();
+    void updateDeviceInfo();    //更新设备信息（内部）
+    String getDeviceInfo(); //获取设备信息（外部）
 
 };
