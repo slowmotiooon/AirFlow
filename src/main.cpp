@@ -5,6 +5,7 @@
 #include "../lib/pwm/pwm.h"
 
 BluetoothSerial SerialBT; //创建蓝牙服务器对象
+Device defaultDevice;   //创建默认设备对象
 hw_timer_t *timer = nullptr; // 设置硬件计时器
 int interruptCounter = 0;
 
@@ -18,12 +19,7 @@ void pwmTask(void *pVoid) {
 }
 
 void IRAM_ATTR timerEvent() {
-    if (interruptCounter == 1023) {
-        interruptCounter = 0;
-    }
-    interruptCounter++;
-
-
+    defaultDevice.updateDeviceInfo();
 }
 
 hw_timer_t *TimerStart(hw_timer_t *hwTimer) {
@@ -42,7 +38,7 @@ hw_timer_t *TimerStart(hw_timer_t *hwTimer) {
     // 设置回调函数触发时间
     // 第一个参数是（绑定好回调函数的）计时器
     // 第二个参数是设置触发间隔， 1000000，指一秒钟触发一次
-    timerAlarmWrite(hwTimer, 10000, true);
+    timerAlarmWrite(hwTimer, defaultDevice.getUpdateFrequency(), true);
 
     // 启动
     timerAlarmEnable(hwTimer);
@@ -59,9 +55,6 @@ void setup() {
     timer = TimerStart(timer);
 
     xTaskCreatePinnedToCore(pwmTask, "pwmTask", 4096, nullptr, 3, &th_p[0], 0);
-    delay(10000);
-    Serial.print("Setup success on core ");
-    Serial.println(xPortGetCoreID());
 }
 
 void loop() {
@@ -76,7 +69,6 @@ void loop() {
 
     if (commandBuffer.length()) {
         if (!executeCommand(commandBuffer)) {
-            Serial.println("Unknown command: " + commandBuffer);
             outputViaBT("Unknown command: " + commandBuffer);
         }
     }

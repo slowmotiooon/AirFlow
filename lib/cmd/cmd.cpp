@@ -5,10 +5,10 @@ void outputViaBT(String target){
     //遍历字符串，用于输出
     for(int i = 0;i<target.length();i++){
         Serial.print(target[i]);    //在串口中输出
-        //Serial.println(i);
         SerialBT.write(target[i]);  //在蓝牙中输出
     }
-    return;
+    Serial.print("\n");
+    SerialBT.write('\n');
 }
 
 //设置LED开关
@@ -32,18 +32,6 @@ int setLED(int ledVal){
     }
 }
 
-//获取电源状态
-int getPower(){
-    if(digitalRead(POWER)==HIGH){
-        outputViaBT("power:ON;");
-        return 1;
-    }
-    else{
-        outputViaBT("power:OFF");
-        return 0;
-    }
-}
-
 // SerialBT的available函数指的是什么：
 // 在其它蓝牙设备向esp32输入蓝牙信息后，esp32会把接收到的信息放入缓冲区，
 // 当缓冲区的字符长度不为0时，available为true，否则为false。
@@ -58,6 +46,8 @@ String getBTCommand(){
 }
 
 //处理命令
+//返回值：1表示存在指令并开始执行；
+//      0表示指令不存在
 int executeCommand(const String& commandBuffer){
     String commandType; //命令类型
     int commandValue = 0;   //命令中的整数部分
@@ -78,32 +68,39 @@ int executeCommand(const String& commandBuffer){
     //处理命令
     if (commandType.equals("setLED")){
         if(setLED(commandValue) == -1) return -1;
+        return 1;
     }
-    else if (commandType.equals("power on")){
+    else if (commandType.equals("power")){
+        defaultDevice.setPower(commandValue);
+        return 1;
     }
-    else if (commandType.equals("power off")){
+    else if (commandType.equals("launch")){
+        defaultDevice.setLaunch(commandValue);
+        return 1;
     }
-    else if (commandType.equals("launch on")){
+    else if (commandType.equals("purge")){
+        defaultDevice.setPurge(commandValue);
+        return 1;
     }
-    else if (commandType.equals("launch off")){
-    }
-    else if (commandType.equals("purge on")){
-    }
-    else if (commandType.equals("purge off")){
-    }
-    else if (commandType.equals("getinfo")){
+    else if (commandType.equals("getInfo")){
+        return 1;
     }
     else if (commandType.startsWith("setRate ")){
+        return 1;
     }
     else if (commandType.startsWith("setVolume ")){
+        return 1;
     }
     else if (commandType.startsWith("setTime ")){
+        return 1;
     }
     else if (commandType.startsWith("setFactor ")){
+        return 1;
     }
     else if (commandType.startsWith("setRange ")){
+        return 1;
     }
-    return 0;
+    else return 0;
 }
 
 /*
