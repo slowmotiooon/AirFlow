@@ -12,7 +12,7 @@ void outputViaBT(String target){
 }
 
 //设置LED开关
-int setLED(int ledVal){
+/*int setLED(int ledVal){
     outputViaBT("LED is set to ");
     if(ledVal==1){
         digitalWrite(LED_BUILTIN,HIGH);
@@ -30,7 +30,7 @@ int setLED(int ledVal){
         outputViaBT("error.");
         return -1;
     }
-}
+}*/
 
 // SerialBT的available函数指的是什么：
 // 在其它蓝牙设备向esp32输入蓝牙信息后，esp32会把接收到的信息放入缓冲区，
@@ -67,7 +67,7 @@ int executeCommand(const String& commandBuffer){
 
     //处理命令
     if (commandType.equals("setLED")){
-        if(setLED(commandValue) == -1) return -1;
+        //if(setLED(commandValue) == -1) return -1;
         return 1;
     }
     else if (commandType.equals("power")){

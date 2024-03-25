@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <BluetoothSerial.h>
-#include <cmd.h>
-#include <IO.h>
+#include "../lib/cmd/cmd.h"
+#include "../lib/IO/IO.h"
 #include "../lib/pwm/pwm.h"
 
 BluetoothSerial SerialBT; //创建蓝牙服务器对象
@@ -50,7 +50,7 @@ hw_timer_t *TimerStart(hw_timer_t *hwTimer) {
 
 void setup() {
     Serial.begin(9600); // 设置串口通信，波特率为115200
-    pinMode(LED_BUILTIN, OUTPUT);
+    //pinMode(LED_BUILTIN, OUTPUT);
     pinMode(POWER,OUTPUT);
     pinMode(LAUNCH,OUTPUT);
     pinMode(PURGE,OUTPUT);
