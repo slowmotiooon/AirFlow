@@ -11,27 +11,6 @@ void outputViaBT(String target){
     //SerialBT.write('\n');
 }
 
-//设置LED开关
-/*int setLED(int ledVal){
-    outputViaBT("LED is set to ");
-    if(ledVal==1){
-        digitalWrite(LED_BUILTIN,HIGH);
-        Serial.print("HIGH");
-        SerialBT.write(char(ledVal+48));
-        return 1;
-    }
-    else if(ledVal==0){
-        digitalWrite(LED_BUILTIN,LOW);
-        Serial.print("LOW");
-        SerialBT.write(char(ledVal+48));
-        return 0;
-    }
-    else{
-        outputViaBT("error.");
-        return -1;
-    }
-}*/
-
 // SerialBT的available函数指的是什么：
 // 在其它蓝牙设备向esp32输入蓝牙信息后，esp32会把接收到的信息放入缓冲区，
 // 当缓冲区的字符长度不为0时，available为true，否则为false。
@@ -66,53 +45,77 @@ int executeCommand(const String& commandBuffer){
     }
 
     //处理命令
-    if (commandType.equals("setLED")){
-        //if(setLED(commandValue) == -1) return -1;
-        return 1;
-    }
-    else if (commandType.equals("power")){
-        if(defaultDevice.setPower(commandValue)){
-            outputViaBT("Power is set to ");
-            outputViaBT(defaultDevice.getPower());
-            outputViaBT("\n");
+    if (commandType.equals("pow")){
+        if(defaultDevice->setPow(commandValue)){
+            // outputViaBT("Power is set to ");
+            // outputViaBT(defaultDevice.getPow()?"ON":"OFF");
+            // outputViaBT("\n");
             return 1;
         }
-        else return 0;
+        // outputViaBT("Can not set power\n");
+        return 0;
     }
-    else if (commandType.equals("launch")){
-        if(defaultDevice.setLaunch(commandValue)){
-            outputViaBT("Launch is set to ");
-            outputViaBT(defaultDevice.getLaunch());
-            outputViaBT("\n");
+    else if (commandType.equals("lch")){
+        if(defaultDevice->setLch(commandValue)){
+            // outputViaBT("Launch is set to ");
+            // outputViaBT(defaultDevice.getLch()?"ON":"OFF");
+            // outputViaBT("\n");
             return 1;
         }
-        else return 0;
+        // outputViaBT("Can not set launch\n");;
+        return 0;
     }
-    else if (commandType.equals("purge")){
-        defaultDevice.setPurge(commandValue);
-        return 1;
+    else if (commandType.equals("pur")){
+        if(defaultDevice->setPur(commandValue)){
+            // outputViaBT("Purge is set to ");
+            // outputViaBT(defaultDevice.getPur()?"ON":"OFF");
+            // outputViaBT("\n");
+            return 1;
+        }
+        // outputViaBT("Can not set purge\n");
+        return 0;
     }
-    else if (commandType.equals("getInfo")){
-        return 1;
+    else if (commandType.equals("fct")){
+        if(defaultDevice->setFct(commandValue)){
+            // outputViaBT("Factor is settled\n");
+            return 1;
+        }
+        // outputViaBT("Can not set Factor\n");
+        return 0;
     }
-    else if (commandType.startsWith("setRate ")){
-        return 1;
+    else if (commandType.equals("mrt")){
+        if(defaultDevice->setMRt(commandValue)){
+            // outputViaBT("maxFlowRate is settled\n");
+            return 1;
+        }
+        // outputViaBT("Can not set maxFlowRate\n");
+        return 0;
     }
-    else if (commandType.startsWith("setVolume ")){
-        return 1;
+    else if (commandType.equals("rat")){
+        if(defaultDevice->setRat(commandValue)){
+            // outputViaBT("setFlowRate is settled\n");
+            return 1;
+        }
+        // outputViaBT("Can not set setFlowRate\n");
+        return 0;
     }
-    else if (commandType.startsWith("setTime ")){
-        return 1;
+    else if (commandType.equals("vol")){
+
+        if(defaultDevice->setVol(double(commandValue))){
+            // outputViaBT("Volume is settled\n");
+            return 1;
+        }
+        // outputViaBT("Can not set Volume\n");
+        return 0;
     }
-    else if (commandType.startsWith("setFactor ")){
-        return 1;
-    }
-    else if (commandType.startsWith("setRange ")){
-        return 1;
-    }
-    else if(commandType.equals("getPower")){
-        outputViaBT(defaultDevice.getPower());
-        return 1;
+    else if (commandType.equals("sec")){
+
+        if(defaultDevice->setSec(commandValue)){
+            // outputViaBT("setSecond is settled\n");
+            return 1;
+        }
+        // outputViaBT("Can not set setSecond\n");
+        return 0;
     }
     else return 0;
 }
