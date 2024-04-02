@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
-#include <ticker.h>
-#include "../Device/Device.h"
+#include <Ticker.h>
+#include <Device.h>
 
 #define PWM_PIN_A 33
 #define ADC_PIN_A 32

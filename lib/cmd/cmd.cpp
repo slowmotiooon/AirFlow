@@ -1,28 +1,17 @@
 #include <cmd.h>
 
-//由于SerialBT库中并没有输出字符串的函数，于是我就写了一个。
-void outputViaBT(String target){
-    //遍历字符串，用于输出
-    for(int i = 0;i<target.length();i++){
-        //Serial.print(target[i]);    //在串口中输出
-        SerialBT.write(target[i]);  //在蓝牙中输出
+//转换std::string数据到String
+String toString(std::string str){
+    String buffer;
+    for(auto it=str.begin();it!=str.end();it++){
+        buffer+=*it;
     }
-    //Serial.print("\n");
-    //SerialBT.write('\n');
+    return buffer;
 }
 
-// SerialBT的available函数指的是什么：
-// 在其它蓝牙设备向esp32输入蓝牙信息后，esp32会把接收到的信息放入缓冲区，
-// 当缓冲区的字符长度不为0时，available为true，否则为false。
 
-//从蓝牙设备中获得命令信息
-String getBTCommand(){
-    String commandBuffer; //用于接收命令
-    while(SerialBT.available()){
-        commandBuffer+=char(SerialBT.read());   // 读取SerialBT中的内容，并且存放到cmdBuffer中，便于后续操作。
-    }
-    return commandBuffer;
-}
+
+
 
 //处理命令
 //返回值：1表示存在指令并开始执行；

@@ -1,13 +1,9 @@
 #pragma once
 #include <Arduino.h>
-#include <BluetoothSerial.h>
-#include "../Device/Device.h"
+#include <Device.h>
 
-extern BluetoothSerial SerialBT;
 extern Device* defaultDevice;
 
-void outputViaBT(String target);
+String toString(std::string str);
 
 int executeCommand(const String& commandBuffer);
-
-String getBTCommand();

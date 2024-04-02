@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 #include <Ticker.h>
-#include "../ESP32/ESP32.h"
+#include <ESP32.h>
 
 class Device {
     bool power;  // 设备的电源状态，false代表电源关闭，true代表电源开启

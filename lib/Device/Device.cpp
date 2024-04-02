@@ -1,4 +1,4 @@
-#include "Device.h"
+#include <Device.h>
 
 //device的默认构造函数，设置所有程序均为关闭状态。
 Device::Device():
@@ -174,5 +174,4 @@ void IRAM_ATTR tickPurge() {
 }
 
 void IRAM_ATTR tickLaunch() {
-    if()
 }
