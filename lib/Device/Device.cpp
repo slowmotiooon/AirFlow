@@ -142,15 +142,15 @@ String Device::toString() {
     str.concat(power?"1":"0");
     str.concat(launch?"1":"0");
     str.concat(purge?"1":"0");
-    str.concat(" Fct ");
+    str.concat(" ");
     str.concat(Factor % 2048);
-    str.concat(" Frt ");
+    str.concat(" ");
     str.concat(maxFlowRate % 1024);
     str.concat(" ");
     str.concat(setFlowRate % 1024);
     str.concat(" ");
     str.concat(curFlowRate % 1024);
-    str.concat(" Vol ");
+    str.concat(" ");
     str.concat(setVolume);
     str.concat(" ");
     str.concat(curVolume);
@@ -158,10 +158,40 @@ String Device::toString() {
     str.concat(intVolume % 1000);
     str.concat(" ");
     str.concat(fltVolume % 64);
-    str.concat(" Sec ");
+    str.concat(" ");
     str.concat(setSecond % 32768);
     str.concat("\n");
     return str;
+}
+
+std::vector<std::string> Device::toString(const int length){
+    String total = this->toString();
+    std::vector<std::string> stringList;
+    std::string buffer;
+    for(int i = 0;i<total.length();i++){
+        if(i%length==0){
+            stringList.push_back(buffer);
+            buffer.clear();
+        }
+        buffer+=total[i];
+    }
+    stringList.push_back(buffer);
+    return stringList;
+}
+
+
+
+uint8_t* Device::convert(){
+    uint8_t* list = new uint8_t[2];
+    list[0] = '\0';
+    list[0] = list[0]<<1;
+    list[0] = list[0]+(power?1:0);
+    list[0] = list[0]<<1;
+    list[0] = list[0]+(launch?1:0);
+    list[0] = list[0]<<1;
+    list[0] = list[0]+(purge?1:0);
+
+    return list;
 }
 
 // 回调函数，在计时器的触发时刻执行

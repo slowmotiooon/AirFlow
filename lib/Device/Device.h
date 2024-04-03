@@ -3,6 +3,8 @@
 #include <Arduino.h>
 #include <Ticker.h>
 #include <ESP32.h>
+#include <cstdint>
+#include <vector>
 
 class Device {
     bool power;  // 设备的电源状态，false代表电源关闭，true代表电源开启
@@ -46,6 +48,10 @@ public:
 
     friend void IRAM_ATTR tickPurge();
     friend void IRAM_ATTR tickLaunch();
+
+    uint8_t *convert();
+
+    std::vector<std::string> toString(int length);
 };
 extern Device* defaultDevice;   //创建默认设备对象
 

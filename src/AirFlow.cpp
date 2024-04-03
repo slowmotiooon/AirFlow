@@ -19,13 +19,13 @@ bool deviceConnected = false;
 //    }
 //}
 
-void report(){BLEOutput(defaultDevice->toString());}
+void report(){BLEOutput(defaultDevice->toString(20));}
 
 void setup() {
     InitIO(); // 初始化ESP32串口读写
     Serial.begin(115200); // 设置串口通信，波特率为115200
     BLEInit();
-    reporter.attach(5, report);
+    reporter.attach(1, report);
     //xTaskCreatePinnedToCore(pwmTask, "pwmTask", 4096, nullptr, 3, &th_p[0], 0);
 }
 

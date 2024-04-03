@@ -1,5 +1,6 @@
 #include <Bluetooth.h>
 
+
 uint8_t txValue = 0;
 
 
@@ -9,6 +10,20 @@ void BLEOutput(String s){
     for(int i = 0;i<s.length();i++){
         uint8_t buffer = s[i];
         pTxCharacteristic->setValue(&buffer,1);
+        pTxCharacteristic->notify();
+    }
+}
+
+void BLEOutput(uint8_t* s,size_t length){
+    pTxCharacteristic->setValue(s,length);
+    pTxCharacteristic->notify();
+}
+
+void BLEOutput(std::vector<std::string> list) {
+    for (auto it = list.begin(); it != list.end(); it++) {
+
+
+        pTxCharacteristic->setValue(*it);
         pTxCharacteristic->notify();
     }
 }
@@ -37,6 +52,7 @@ void BLEInit(){
     pTxCharacteristic->addDescriptor(new BLE2902());
     BLECharacteristic* pRxCharacteristic = pService->createCharacteristic(CHARACTERISTIC_UUID_RX,BLECharacteristic::PROPERTY_WRITE);
     pRxCharacteristic->setCallbacks(new MyCallbacks());
+    //esp_ble_gatt_set_local_mtu(40);
 
     pService->start();
     pServer->getAdvertising()->start();
