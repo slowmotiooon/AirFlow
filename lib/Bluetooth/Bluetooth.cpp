@@ -14,8 +14,8 @@ void BLEOutput(String s){
     }
 }
 
-void BLEOutput(uint8_t* s,size_t length){
-    pTxCharacteristic->setValue(s,length);
+void BLEOutput(uint8_t s[], size_t length){
+    pTxCharacteristic->setValue(s, length);
     pTxCharacteristic->notify();
 }
 
@@ -30,10 +30,11 @@ void BLEOutput(std::vector<std::string> list) {
 
 void MyCallbacks::onWrite(BLECharacteristic* pCharacteristic){
     std::string rxValue = pCharacteristic->getValue();
+    Serial.println(toString(rxValue));
     if(rxValue.length())
     {
         if (!executeCommand(toString(rxValue))) {
-            BLEOutput("Command error: "+ toString(rxValue));
+            // BLEOutput("Command error: "+ toString(rxValue));
         }
     }
 }

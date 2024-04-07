@@ -29,7 +29,7 @@ class ServerCallback : public BLEServerCallbacks{
 };
 
 void BLEOutput(String s);
-void BLEOutput(uint8_t* s,size_t length);
+void BLEOutput(uint8_t s[],size_t length);
 void BLEOutput(std::vector<std::string> list);
 
 class MyCallbacks:public BLECharacteristicCallbacks{

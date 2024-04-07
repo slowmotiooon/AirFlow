@@ -13,8 +13,6 @@ Device::Device():
 
     setVolume(0),   // 设定的目标体积 单位mm^3
     curVolume(0),   // 从进入定量状态后输入的实际气体体积 单位mm^3
-    intVolume(0),   // curVolume的整数部分，保留3位有效数字 0-999
-    fltVolume(0),   // curVolume的浮点部分，0-63
     // curV = intV * 10 ^ fltV mm^3
     setSecond(0) // 设定的清洗时长 小于32767
 {}
@@ -118,7 +116,7 @@ bool Device::setVol(int i, int f){
     return false;
 }
 
-bool Device::setVol(double a){
+bool Device::setVol(float a){
     if(a > 1){
         setVolume = a;
         return true;
@@ -155,44 +153,59 @@ String Device::toString() {
     str.concat(" ");
     str.concat(curVolume);
     str.concat(" ");
-    str.concat(intVolume % 1000);
-    str.concat(" ");
-    str.concat(fltVolume % 64);
-    str.concat(" ");
     str.concat(setSecond % 32768);
     str.concat("\n");
     return str;
 }
 
-std::vector<std::string> Device::toString(const int length){
-    String total = this->toString();
-    std::vector<std::string> stringList;
-    std::string buffer;
-    for(int i = 0;i<total.length();i++){
-        if(i%length==0){
-            stringList.push_back(buffer);
-            buffer.clear();
-        }
-        buffer+=total[i];
-    }
-    stringList.push_back(buffer);
-    return stringList;
+// 转换为uint16格式
+void Device::toU8(uint8_t* ar) {
+    ar[0] = (uint8_t)((((uint8_t)power) << 7) + (((uint8_t)launch) << 6) + (((uint8_t)purge) << 5) + ((Factor % 2048) >> 6));
+    ar[1] = (uint8_t)(Factor % 64);
+    ar[2] = (uint8_t)(maxFlowRate >> 8);
+    ar[3] = (uint8_t)(maxFlowRate);
+    ar[4] = (uint8_t)(setFlowRate >> 8);
+    ar[5] = (uint8_t)(setFlowRate);
+    ar[6] = (uint8_t)(curFlowRate >> 8);
+    ar[7] = (uint8_t)(curFlowRate);
+
+    uint16_t temp = flt2u16(setVolume);
+    ar[8] = (uint8_t)(temp >> 8);
+    ar[9] = (uint8_t)(temp);
+
+    temp = flt2u16(curVolume);
+    ar[10] = (uint8_t)(temp);
+    ar[11] = (uint8_t)(temp >> 8);
+    ar[12] = (uint8_t)(setSecond >> 8);
+    ar[13] = (uint8_t)(setSecond );
 }
 
-
-
-uint8_t* Device::convert(){
-    uint8_t* list = new uint8_t[2];
-    list[0] = '\0';
-    list[0] = list[0]<<1;
-    list[0] = list[0]+(power?1:0);
-    list[0] = list[0]<<1;
-    list[0] = list[0]+(launch?1:0);
-    list[0] = list[0]<<1;
-    list[0] = list[0]+(purge?1:0);
-
-    return list;
+uint16_t Device::flt2u16(float flt) {
+    // float存储格式为 保留括号中的部分
+    // SEEE EEEE | EMMM MMMM | MMMM MMMM | MMMM MMMM
+    //  ( E EEEE | EMMM MMMM | MMM ) 部分保留
+    // flt = (-1)^s + 1.m * 2^(e-127)
+    if(flt < 1)return 0;
+    float x = flt;
+    short* p = (short*)&x;
+    uint16_t ans = (p[0]<< 3) + (p[1] >> 13);
+    return ans;
 }
+
+//std::vector<std::string> Device::toString(const int length){
+//    String total = this->toString();
+//    std::vector<std::string> stringList;
+//    std::string buffer;
+//    for(int i = 0;i<total.length();i++){
+//        if(i%length==0){
+//            stringList.push_back(buffer);
+//            buffer.clear();
+//        }
+//        buffer+=total[i];
+//    }
+//    stringList.push_back(buffer);
+//    return stringList;
+//}
 
 // 回调函数，在计时器的触发时刻执行
 // IRAM_ATTR属性表示将此函数存入内存RAM当中而非闪存Flash，使得该函数能被快速调用

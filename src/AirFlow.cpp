@@ -6,8 +6,8 @@
 Device* defaultDevice = new Device(); //创建默认设备对象
 Ticker reporter; // 传输设备内容的计时器
 
-BLEServer* pServer = NULL;
-BLECharacteristic* pTxCharacteristic = NULL;
+BLEServer* pServer = nullptr;
+BLECharacteristic* pTxCharacteristic = nullptr;
 bool deviceConnected = false;
 
 
@@ -19,13 +19,17 @@ bool deviceConnected = false;
 //    }
 //}
 
-void report(){BLEOutput(defaultDevice->toString(20));}
+void report(){
+    uint8_t x[20];
+    defaultDevice->toU8(x);
+    BLEOutput(x, 14);
+}
 
 void setup() {
     InitIO(); // 初始化ESP32串口读写
     Serial.begin(115200); // 设置串口通信，波特率为115200
     BLEInit();
-    reporter.attach(1, report);
+    reporter.attach(5, report);
     //xTaskCreatePinnedToCore(pwmTask, "pwmTask", 4096, nullptr, 3, &th_p[0], 0);
 }
 

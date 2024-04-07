@@ -16,11 +16,9 @@ class Device {
     int setFlowRate; // 设备设定的理论流速，从0-1023 设定的流速 = 10 * setF * maxF / 1024 (SCCM)
     int curFlowRate; // 设备的实际流速，从0-1023 真实的流速 = 10 * curF * maxF / 1024 (SCCM)
 
-    double setVolume; // 设定的目标体积 单位mm^3
-    double curVolume; // 从进入定量状态后输入的实际气体体积 单位mm^3
-    int intVolume;    // curVolume的整数部分，保留3位有效数字 0-999
-    int fltVolume;    // curVolume的浮点部分，0-50
-    // curV = intV * 10 ^ fltV mm^3
+    float setVolume; // 设定的目标体积 单位ml
+    float curVolume; // 从进入定量状态后输入的实际气体体积 单位ml
+
     int setSecond; // 设定的清洗时长
     Ticker ticker;
 
@@ -39,17 +37,26 @@ public:
     bool setMRt(int); // 设置最大流速 输入单位为SCCM
     bool setRat(int); // 设置目标流速 输入单位为SCCM
     bool setVol(int, int); // 输入整数部分和浮点部分，设置目标体积
-    bool setVol(double);
+    bool setVol(float);
     bool setSec(int); // 设置清洗时间 /秒
 
     String toString(); // 转换为字符串
     //000 Fct 0000 Frt 0000 0000 0000 Vol 0000.000 000 00 Sec 00000
     //pow lch pur三位；最大流速、设定流速、实际流速；真实体积（浮点）、体积整数部分+浮点部分；清洗时长
+    void toU8(uint8_t*); // 转换为uint16格式
+    uint16_t flt2u16(float); // 将float保留三位有效数字存至u16中
+    // ar[0] = factor * 8 + 000(2)
+    // ar[1] = maxFlowRate
+    // ar[2] = setFlowRate
+    // ar[3] = curFlowRate
+    // ar[4] = setVolume
+    // ar[5] = setVolume >> 16
+    // ar[5] = curVolume
+    // ar[6] = curVolume >> 16
+    // ar[7] = setSecond
 
     friend void IRAM_ATTR tickPurge();
     friend void IRAM_ATTR tickLaunch();
-
-    uint8_t *convert();
 
     std::vector<std::string> toString(int length);
 };
@@ -59,3 +66,4 @@ extern Device* defaultDevice;   //创建默认设备对象
 // IRAM_ATTR属性表示将此函数存入内存RAM当中而非闪存Flash，使得该函数能被快速调用
 void IRAM_ATTR tickPurge();
 void IRAM_ATTR tickLaunch();
+
