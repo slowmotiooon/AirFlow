@@ -36,8 +36,8 @@ public:
     bool setFct(int); // 设定气体转换系数
     bool setMRt(int); // 设置最大流速 输入单位为SCCM
     bool setRat(int); // 设置目标流速 输入单位为SCCM
-    bool setVol(int, int); // 输入整数部分和浮点部分，设置目标体积
     bool setVol(float);
+    bool setVol(int);
     bool setSec(int); // 设置清洗时间 /秒
 
     String toString(); // 转换为字符串

@@ -19,7 +19,7 @@ bool deviceConnected = false;
 //    }
 //}
 
-void report(){
+void IRAM_ATTR report(){
     uint8_t x[20];
     defaultDevice->toU8(x);
     BLEOutput(x, 14);
@@ -29,7 +29,7 @@ void setup() {
     InitIO(); // 初始化ESP32串口读写
     Serial.begin(115200); // 设置串口通信，波特率为115200
     BLEInit();
-    reporter.attach(5, report);
+    reporter.attach(0.5, report);
     //xTaskCreatePinnedToCore(pwmTask, "pwmTask", 4096, nullptr, 3, &th_p[0], 0);
 }
 

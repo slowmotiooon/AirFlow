@@ -11,24 +11,26 @@ Device::Device():
     setFlowRate(0), // 设备设定的理论流速，从0-1023 设定的流速 = 10 * setF * maxF / 1024 (SCCM)
     curFlowRate(0), // 设备的实际流速，从0-1023 真实的流速 = 10 * curF * maxF / 1024 (SCCM)
 
-    setVolume(0),   // 设定的目标体积 单位mm^3
-    curVolume(0),   // 从进入定量状态后输入的实际气体体积 单位mm^3
+    setVolume(0.0),   // 设定的目标体积 单位mm^3
+    curVolume(0.0),   // 从进入定量状态后输入的实际气体体积 单位mm^3
     // curV = intV * 10 ^ fltV mm^3
     setSecond(0) // 设定的清洗时长 小于32767
 {}
 
 // 获得设备电源信息
-bool Device::getPow() {return digitalRead(POWER);}
+bool Device::getPow() {return power = digitalRead(POWER);}
 
 // 获得设备运行状态信息
-bool Device::getLch() {return digitalRead(LAUNCH);}
+bool Device::getLch() {return launch = digitalRead(LAUNCH);}
 
 // 获得设备清洗状态信息
-bool Device::getPur() {return digitalRead(PURGE);}
+bool Device::getPur() {return purge = digitalRead(PURGE);}
 
 // 更新curFlowRate
-int Device::getRat() {
-    return 0;
+int IRAM_ATTR Device::getRat() {
+    int voltage = analogReadMilliVolts(ADC_PIN_A); // 3V是最大
+    curFlowRate = (int)((float)voltage/3000)*1024;
+    return curFlowRate;
 }
 
 // 设定设备的电源信息
@@ -49,14 +51,19 @@ bool Device::setPow(bool x) {
 // 设定设备的运行状态
 bool Device::setLch(bool x) {
     if(x){
-        if(!power || purge || !Factor || !maxFlowRate || !setFlowRate || setVolume < 0.1) {return false;}
+        if(!power || purge || !Factor || !maxFlowRate || !setFlowRate || setVolume < 0) {return false;}
         launch = true;
+        curVolume = 0;
         digitalWrite(LAUNCH, HIGH);
+        ledcWrite(MOTOR_LEDC_CHANNEL, setFlowRate % 1024);
+        ticker.attach(0.1, tickLaunch);
     } else {
         setFlowRate = 0;
         setVolume = 0;
         launch = false;
         digitalWrite(LAUNCH, LOW);
+        ledcWrite(MOTOR_LEDC_CHANNEL, 0);
+        ticker.detach();
     }
     return true;
 }
@@ -97,7 +104,7 @@ bool Device::setMRt(int r) {
 
 // 设置目标流速
 bool Device::setRat(int r) {
-    r = int((r * 1024 / 10) / maxFlowRate);
+    r = (int)((float)r * 1024 / (10 * maxFlowRate));
     if(r > 0 && r < 1024){
         setFlowRate = r;
         return true;
@@ -106,22 +113,24 @@ bool Device::setRat(int r) {
     return false;
 }
 
-// 输入整数部分和浮点部分，设置目标体积
-bool Device::setVol(int i, int f){
-    if(i > 0 && i < 1000 && f >= 0 && f < 64){
-        setVolume = i * pow(10, f);
+bool Device::setVol(float a) {
+    if(a > 1){
+        setVolume = a;
         return true;
     }
     setVolume = 0;
     return false;
 }
 
-bool Device::setVol(float a){
-    if(a > 1){
-        setVolume = a;
+bool Device::setVol(int a) {
+    // EEEE EEMM MMMM MMMM
+    float e = int(a / 1024) % 64;
+    float vol = float(a % 1024);
+    vol *= pow(10, e);
+    if(vol > 1) {
+        setVolume = vol;
         return true;
     }
-    setVolume = 0;
     return false;
 }
 
@@ -162,59 +171,52 @@ String Device::toString() {
 void Device::toU8(uint8_t* ar) {
     ar[0] = (uint8_t)((((uint8_t)power) << 7) + (((uint8_t)launch) << 6) + (((uint8_t)purge) << 5) + ((Factor % 2048) >> 6));
     ar[1] = (uint8_t)(Factor % 64);
-    ar[2] = (uint8_t)(maxFlowRate >> 8);
-    ar[3] = (uint8_t)(maxFlowRate);
-    ar[4] = (uint8_t)(setFlowRate >> 8);
-    ar[5] = (uint8_t)(setFlowRate);
-    ar[6] = (uint8_t)(curFlowRate >> 8);
-    ar[7] = (uint8_t)(curFlowRate);
+    ar[2] = (uint8_t)((maxFlowRate >> 8) % 256);
+    ar[3] = (uint8_t)(maxFlowRate % 256);
+    ar[4] = (uint8_t)((setFlowRate >> 8) % 256);
+    ar[5] = (uint8_t)(setFlowRate % 256);
+    ar[6] = (uint8_t)((curFlowRate >> 8) % 256);
+    ar[7] = (uint8_t)(curFlowRate % 256);
 
     uint16_t temp = flt2u16(setVolume);
     ar[8] = (uint8_t)(temp >> 8);
     ar[9] = (uint8_t)(temp);
 
     temp = flt2u16(curVolume);
-    ar[10] = (uint8_t)(temp);
-    ar[11] = (uint8_t)(temp >> 8);
+    ar[10] = (uint8_t)(temp >> 8);
+    ar[11] = (uint8_t)(temp);
+
     ar[12] = (uint8_t)(setSecond >> 8);
     ar[13] = (uint8_t)(setSecond );
 }
 
 uint16_t Device::flt2u16(float flt) {
-    // float存储格式为 保留括号中的部分
-    // SEEE EEEE | EMMM MMMM | MMMM MMMM | MMMM MMMM
-    //  ( E EEEE | EMMM MMMM | MMM ) 部分保留
-    // flt = (-1)^s + 1.m * 2^(e-127)
-    if(flt < 1)return 0;
-    float x = flt;
-    short* p = (short*)&x;
-    uint16_t ans = (p[0]<< 3) + (p[1] >> 13);
+    int e = 0;
+    while(flt > 1000) {
+        flt = flt / 10;
+        ++e;
+    }
+    uint16_t ans = uint16_t(flt) % 1024;
+    ans += e * 1024;
     return ans;
 }
-
-//std::vector<std::string> Device::toString(const int length){
-//    String total = this->toString();
-//    std::vector<std::string> stringList;
-//    std::string buffer;
-//    for(int i = 0;i<total.length();i++){
-//        if(i%length==0){
-//            stringList.push_back(buffer);
-//            buffer.clear();
-//        }
-//        buffer+=total[i];
-//    }
-//    stringList.push_back(buffer);
-//    return stringList;
-//}
 
 // 回调函数，在计时器的触发时刻执行
 // IRAM_ATTR属性表示将此函数存入内存RAM当中而非闪存Flash，使得该函数能被快速调用
 void IRAM_ATTR tickPurge() {
-    if(defaultDevice->setSecond <= 0){
+    if(defaultDevice->setSecond <= 0) {
         defaultDevice->setPur(false);
     }
     else defaultDevice->setSecond -= 1;
 }
 
+// 100ms调用一次
 void IRAM_ATTR tickLaunch() {
+    if(defaultDevice->curVolume >= defaultDevice->setVolume) {
+        defaultDevice->setLch(false);
+        return;
+    }
+    defaultDevice->getRat();
+    // 变化值为：当前速度比*最大速度*质量因子
+    defaultDevice->curVolume += ((float)defaultDevice->curFlowRate * defaultDevice->maxFlowRate * 10 / (1024 * 600)) * defaultDevice->Factor / 1000;
 }

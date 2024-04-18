@@ -9,10 +9,6 @@ String toString(std::string str){
     return buffer;
 }
 
-
-
-
-
 //处理命令
 //返回值：1表示存在指令并开始执行；
 //      0表示指令不存在
@@ -89,8 +85,7 @@ int executeCommand(const String& commandBuffer){
         return 0;
     }
     else if (commandType.equals("vol")){
-
-        if(defaultDevice->setVol(double(commandValue))){
+        if(defaultDevice->setVol(commandValue)){
             // outputViaBT("Volume is settled\n");
             return 1;
         }
