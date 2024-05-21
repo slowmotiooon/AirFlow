@@ -23,6 +23,10 @@ void IRAM_ATTR report(){
     uint8_t x[20];
     defaultDevice->toU8(x);
     BLEOutput(x, 14);
+//    for(int i = 0;i<14;i++){
+//        Serial.print(char(x[i]));
+//    }
+//    Serial.println();
 }
 
 void setup() {

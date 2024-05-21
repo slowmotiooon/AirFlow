@@ -28,7 +28,8 @@ bool Device::getPur() {return purge = digitalRead(PURGE);}
 
 // 更新curFlowRate
 int IRAM_ATTR Device::getRat() {
-    int voltage = analogReadMilliVolts(ADC_PIN_A); // 3V是最大
+    unsigned int voltage = analogReadMilliVolts(ADC_PIN_A); // 3V是最大
+    Serial.println(voltage);
     curFlowRate = (int)((float)voltage/3000)*1024;
     return curFlowRate;
 }
@@ -73,12 +74,14 @@ bool Device::setPur(bool x) {
     if(x){
         if(!power || launch || !setSecond) {return false;}
         purge = true;
+        digitalWrite(LAUNCH, HIGH);
         digitalWrite(PURGE, HIGH);
         ticker.attach(1, tickPurge);
     } else {
         setSecond = 0;
         purge = false;
         digitalWrite(PURGE, LOW);
+        digitalWrite(LAUNCH, LOW);
         ticker.detach();
     }
     return true;
@@ -169,6 +172,8 @@ String Device::toString() {
 
 // 转换为uint16格式
 void Device::toU8(uint8_t* ar) {
+    Serial.println(curFlowRate);
+    Serial.println(curVolume);
     ar[0] = (uint8_t)((((uint8_t)power) << 7) + (((uint8_t)launch) << 6) + (((uint8_t)purge) << 5) + ((Factor % 2048) >> 6));
     ar[1] = (uint8_t)(Factor % 64);
     ar[2] = (uint8_t)((maxFlowRate >> 8) % 256);

@@ -6,6 +6,7 @@ bool InitIO() {
     pinMode(POWER,OUTPUT);
     pinMode(LAUNCH,OUTPUT);
     pinMode(PURGE,OUTPUT);
+    pinMode(ADC_PIN_A,INPUT);
 
     ledcSetup(MOTOR_LEDC_CHANNEL,pwmFreq,pwmResolution); // 设置PWM频道的分辨率，基础频率
     ledcAttachPin(PWM_PIN_A, MOTOR_LEDC_CHANNEL); //将PWM_PIN_A引脚（GPIO33）绑定到PWM频道上
