@@ -29,8 +29,8 @@ bool Device::getPur() {return purge = digitalRead(PURGE);}
 // 更新curFlowRate
 int IRAM_ATTR Device::getRat() {
     unsigned int voltage = analogReadMilliVolts(ADC_PIN_A); // 3V是最大
-    Serial.println(voltage);
-    curFlowRate = (int)((float)voltage/3000)*1024;
+    //Serial.println(analogReadMilliVolts(ADC_PIN_A));
+    curFlowRate = (int)(voltage*1024/3000);
     return curFlowRate;
 }
 
@@ -107,7 +107,7 @@ bool Device::setMRt(int r) {
 
 // 设置目标流速
 bool Device::setRat(int r) {
-    r = (int)((float)r * 1024 / (10 * maxFlowRate));
+    r = (int)(r * 1024.0 / (10.0 * maxFlowRate));
     if(r > 0 && r < 1024){
         setFlowRate = r;
         return true;
@@ -172,8 +172,8 @@ String Device::toString() {
 
 // 转换为uint16格式
 void Device::toU8(uint8_t* ar) {
-    Serial.println(curFlowRate);
-    Serial.println(curVolume);
+    //Serial.println(curFlowRate);
+    //Serial.println(curVolume);
     ar[0] = (uint8_t)((((uint8_t)power) << 7) + (((uint8_t)launch) << 6) + (((uint8_t)purge) << 5) + ((Factor % 2048) >> 6));
     ar[1] = (uint8_t)(Factor % 64);
     ar[2] = (uint8_t)((maxFlowRate >> 8) % 256);
@@ -223,5 +223,6 @@ void IRAM_ATTR tickLaunch() {
     }
     defaultDevice->getRat();
     // 变化值为：当前速度比*最大速度*质量因子
-    defaultDevice->curVolume += ((float)defaultDevice->curFlowRate * defaultDevice->maxFlowRate * 10 / (1024 * 600)) * defaultDevice->Factor / 1000;
+    defaultDevice->curVolume += (defaultDevice->curFlowRate * defaultDevice->maxFlowRate * 10.0 / (1024.0 * 600.0)) * (defaultDevice->Factor / 1000.0);
+    Serial.println(defaultDevice->curFlowRate);
 }

@@ -22,6 +22,7 @@ bool deviceConnected = false;
 void IRAM_ATTR report(){
     uint8_t x[20];
     defaultDevice->toU8(x);
+    Serial.println(reinterpret_cast<const char *>(x));
     BLEOutput(x, 14);
 //    for(int i = 0;i<14;i++){
 //        Serial.print(char(x[i]));

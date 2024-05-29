@@ -30,7 +30,7 @@ void BLEOutput(std::vector<std::string> list) {
 
 void MyCallbacks::onWrite(BLECharacteristic* pCharacteristic){
     std::string rxValue = pCharacteristic->getValue();
-    Serial.println(toString(rxValue));
+    //Serial.println(toString(rxValue));
     if(rxValue.length())
     {
         if (!executeCommand(toString(rxValue))) {
